@@ -4,6 +4,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import springbook.service.UserLevelUpgradePolicy;
+import springbook.service.UserLevelUpgradePolicyImpl;
+import springbook.service.UserService;
 
 import javax.sql.DataSource;
 
@@ -11,8 +14,18 @@ import javax.sql.DataSource;
 public class DaoFactory {
 
     @Bean
+    public UserService userService(){
+        return new UserService(userDao(), userLevelUpgradePolicy());
+    }
+
+    @Bean
+    public UserLevelUpgradePolicy userLevelUpgradePolicy(){
+        return new UserLevelUpgradePolicyImpl();
+    }
+
+    @Bean
     public UserDao userDao(){
-        UserDao userDao = new UserDao(jdbcTemplate());
+        UserDao userDao = new UserDaoJdbc(jdbcTemplate());
         return userDao;
     }
 

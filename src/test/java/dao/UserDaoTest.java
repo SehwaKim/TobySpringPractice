@@ -1,5 +1,8 @@
+package dao;
+
 import springbook.dao.DaoFactory;
 import springbook.dao.UserDao;
+import springbook.domain.Level;
 import springbook.domain.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,15 +33,13 @@ public class UserDaoTest {
 
     @Before
     public void setUp(){
-        user1 = new User("1", "매", "1235");
-        user2 = new User("2", "참새", "1235");
-        user3 = new User("3", "독수리", "1235");
+        user1 = new User("1", "매", "1235", Level.BASIC, 10, 10, "sehwa@sehwa.com");
+        user2 = new User("2", "참새", "1235", Level.SILVER, 10, 10, "sehwa@sehwa.com");
+        user3 = new User("3", "독수리", "1235", Level.GOLD, 10, 10, "sehwa@sehwa.com");
     }
 
     @Test
     public void addAndGet() throws SQLException {
-        User user1 = new User("1", "아이스베어", "1235");
-        User user2 = new User("2", "그냥곰", "1235");
 
         userDao.deleteAll();
 
@@ -47,8 +48,7 @@ public class UserDaoTest {
         assertThat(userDao.getCount(), is(2));
 
         User userget2 = userDao.get(user2.getId());
-        assertThat(userget2.getName(), is(user2.getName()));
-        assertThat(userget2.getPassword(), is(user2.getPassword()));
+        checkSameUser(userget2, user2);
 
     }
 
@@ -70,12 +70,12 @@ public class UserDaoTest {
     @Test(expected = EmptyResultDataAccessException.class)
     public void getUserFailure() throws SQLException {
         ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        UserDao userDao = context.getBean("userDao", UserDao.class);
+        UserDao userDaoJdbc = context.getBean("userDao", UserDao.class);
 
-        userDao.deleteAll();
-        assertThat(userDao.getCount(), is(0));
+        userDaoJdbc.deleteAll();
+        assertThat(userDaoJdbc.getCount(), is(0));
 
-        userDao.get("unknown_id");
+        userDaoJdbc.get("unknown_id");
     }
 
     @Test
@@ -93,5 +93,32 @@ public class UserDaoTest {
         userDao.add(user3);
         List<User> users3 = userDao.getAll();
         assertThat(users3.size(), is(3));
+    }
+
+    @Test
+    public void update(){
+        userDao.deleteAll();
+
+        userDao.add(user1);
+
+        user1.setName("북극곰");
+        user1.setPassword("1111");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(100);
+        user1.setRecommend(10000);
+
+        userDao.update(user1);
+
+        User user1update = userDao.get(user1.getId());
+        checkSameUser(user1, user1update);
+    }
+
+    private void checkSameUser(User user1, User user2){
+        assertThat(user1.getId(), is(user2.getId()));
+        assertThat(user1.getName(), is(user2.getName()));
+        assertThat(user1.getPassword(), is(user2.getPassword()));
+        assertThat(user1.getLevel(), is(user2.getLevel()));
+        assertThat(user1.getLogin(), is(user2.getLogin()));
+        assertThat(user1.getRecommend(), is(user2.getRecommend()));
     }
 }
