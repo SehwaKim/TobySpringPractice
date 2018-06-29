@@ -1,12 +1,15 @@
-package springbook.dao;
+package springbook.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
-import springbook.service.UserLevelUpgradePolicy;
-import springbook.service.UserLevelUpgradePolicyImpl;
-import springbook.service.UserService;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import springbook.dao.JdbcContext;
+import springbook.dao.UserDao;
+import springbook.dao.UserDaoJdbc;
+import springbook.service.*;
 
 import javax.sql.DataSource;
 
@@ -15,7 +18,12 @@ public class DaoFactory {
 
     @Bean
     public UserService userService(){
-        return new UserService(userDao(), userLevelUpgradePolicy());
+        return new UserServiceTx(userServiceImpl());
+    }
+
+    @Bean
+    public UserService userServiceImpl(){
+        return new UserServiceImpl(userDao(), userLevelUpgradePolicy());
     }
 
     @Bean
@@ -27,6 +35,11 @@ public class DaoFactory {
     public UserDao userDao(){
         UserDao userDao = new UserDaoJdbc(jdbcTemplate());
         return userDao;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(){
+        return new DataSourceTransactionManager(dataSource());
     }
 
     @Bean

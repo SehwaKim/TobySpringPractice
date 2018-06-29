@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import springbook.dao.DaoFactory;
+import springbook.config.DaoFactory;
 import springbook.dao.UserDao;
 import springbook.domain.Level;
 import springbook.domain.User;
